@@ -1,25 +1,22 @@
 from copy import deepcopy
  
 import bifrost as bf
-import bifrost.pipeline as bfp
+from bifrost.pipeline import TransformBlock
 from bifrost.ndarray import copy_array
  
  
-class CopyBlock(bfp.TransformBlock):#                                         $\tikzmark{block-start}$
+class CopyBlock(TransformBlock):#                                         $\tikzmark{block-start}$
     """Copy the input ring to output ring"""
-    def __init__(self, iring, space=None, *args, **kwargs):
-        super(CopyBlock, self).__init__(iring, *args, **kwargs)
-        if space is None:
-            space = self.iring.space
+    def __init__(self, iring, space):
+        super(CopyBlock, self).__init__(iring)
         self.orings = [self.create_ring(space=space)]
     def on_sequence(self, iseq):
-        ohdr = deepcopy(iseq.header)
-        return ohdr
+        return deepcopy(iseq.header)
     def on_data(self, ispan, ospan):
         copy_array(ospan.data, ispan.data)#$\tikzmark{block-end}$
  
-def copy_block(iring, space=None, *args, **kwargs):
-    return CopyBlock(iring, space=None, *args, **kwargs)
+def copy_block(iring, space):
+    return CopyBlock(iring, space)
 
 
 bc = bf.BlockChainer()
@@ -33,7 +30,7 @@ bc.blocks.fft(axes='fine_time', axis_labels='freq')
 bc.blocks.detect(mode='scalar')
 bc.blocks.transpose(['time', 'pol', 'freq'])#$\tikzmark{gpu-end}$
  
-bc.blocks.copy(space='cuda_host') 
+bc.blocks.copy(space='system') 
 bc.blocks.quantize('i8')
 bc.blocks.write_sigproc()
  
