@@ -18,15 +18,16 @@ class CopyBlock(bfp.TransformBlock):#                                         $\
     def on_data(self, ispan, ospan):
         copy_array(ospan.data, ispan.data)#$\tikzmark{block-end}$
  
- 
+def copy_block(iring, space=None, *args, **kwargs):
+    return CopyBlock(iring, space=None, *args, **kwargs)
+
 
 bc = bf.BlockChainer()
 
 
-
 bc.blocks.read_wav(['hey_jude.wav'], gulp_nframe=4096) 
  
-bc.blocks.copy(space='cuda')#                                $\tikzmark{gpu-start}$
+bc.custom(copy_block)(space='cuda')#                                $\tikzmark{gpu-start}$
 bc.views.split_axis('time', 256, label='fine_time')
 bc.blocks.fft(axes='fine_time', axis_labels='freq')
 bc.blocks.detect(mode='scalar')
