@@ -1,0 +1,4 @@
+[submodule "bifrost"]
+	path = bifrost
+	url = https://github.com/ledatelescope/bifrost.git
+	branch = benchmarks-dev
